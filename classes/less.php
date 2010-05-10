@@ -15,7 +15,7 @@ class Less
 			foreach ($files as $input)
 			{
 				$filename = substr($input, strripos('/' . $input, '/'), strlen($input));
-				$output = self::get_output($filename);
+				$output = self::get_output($input, $filename);
 				array_push($stylesheets, html::style( self::compile($input, $output), array('media' => $media) ));
 			}
 
@@ -25,14 +25,14 @@ class Less
 		return html::style( self::glue($files), array('media' => $media) );
 	}
 
-	public static function get_output($filename)
+	public static function get_output($input, $filename)
 	{
 		$config = Kohana::config('less');
 		$filepath = $config->path . $filename;
 
 		if ( ! file_exists($filepath . '.css'))
 		{
-			touch($config->path . $filename . '.css', time() - 3600);
+			touch($filepath . '.css', filemtime($input . '.less') - 3600);
 		}
 
 		return $filename;
