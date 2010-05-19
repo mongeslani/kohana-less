@@ -52,4 +52,4 @@ Sample Code
 
 Issues
 -------
-Please report it to the [issues tracker](http://github.com/mongeslani/LESS-for-KO3/issues).
+Please report it to the [issues tracker](http://github.com/mongeslani/kohana-less/issues).
