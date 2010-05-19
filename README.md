@@ -15,6 +15,10 @@ To Use
 
 Sample Code
 ------------
+
+
+
+
 ** /media/css/style.less **
 
 		@bodyBkgColor: #EEE;
@@ -25,15 +29,35 @@ Sample Code
 			h1 { font-size: 3em; }
 		}
 
+** APPPATH/config/less.php **
+
+		return array(
+			'compress' => TRUE,
+
+			// relative PATH to a writable folder to store compiled / compressed css
+			// path below will be treated as: DOCROOT . 'media/css/'
+			'path'     => 'media/css/',
+		);
+
 ** APPPATH/classes/controller/sample.php **
 
 		Controller_Home extends Controller_Template {
 
 			public $template = 'template';
-			public $stylesheets = array('/media/css/reset.less', '/media/css/style.less');
+
+			// no need to add .less extension
+			public $stylesheets = array('reset', 'style');
 
 			public function action_index()
 			{
+				$stylesheets = $this->stylesheets;
+
+				foreach (stylesheets as $key => $value)
+				{
+					// I keep my less files inside APPPATH . 'media/less/' but can be anywhere
+					$stylesheets[$key] = APPPATH . 'media/less/' . $value;
+				}
+
 				$this->template->stylesheets = Less::set($this->stylesheets);
 			}
 		}
