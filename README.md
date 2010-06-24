@@ -1,17 +1,19 @@
-KO3 LESS Module
-===============
+KO3 LESS Module v.1.1
+=====================
 
 LESS Module is a port of Leaf Corcoran's [LESSPHP](http://leafo.net/lessphp) for Kohana 3
 It adopts some of Alex Sancho's Kohana 2.3 Assets Module codes for CSS compression, credits goes to them
-Thanks to [cheeaun](http://github.com/cheeaun) for helping out
+Thanks to [cheeaun](http://github.com/cheeaun) for helping out!
+You might also want to check out another implementation from [jeremeamia](http://github.com/jeremeamia/kohana-less).
 
 To Use
 -------
 1. Put the less module folder in your Modules directory
 2. Include less module in your application's bootstrap: 'less' => MODPATH.'less'
 3. Copy the less config file from /modules/less/config/less.php to your application's config directory
-4. From your less.php config file, put the path to where you want the CSS files compiled / compressed, the folder must be writable
-5. You can set compression to TRUE on your less.php config file if you want your CSS files to be combined in to one file and compressed
+4. From your less.php config file, put the 'path' to where you want the CSS files compiled / compressed, the folder must be writable
+5. You can set 'compress' to TRUE on your less.php config file if you want your CSS files to be combined in to one file and compressed (to lessen server calls)
+6. Checkout how to use through the included sample-code folder, that folder is not part of the module
 
 Sample Code
 ------------
@@ -19,46 +21,62 @@ Sample Code
 
 
 
-** /media/css/style.less **
+** MODPATH/baseModule/media/css/layout.less **
 
 		@bodyBkgColor: #EEE;
 
 		body {
 			background: @bodyBkgColor;
+			margin:0;
+			padding:0;
 
 			h1 { font-size: 3em; }
+		}
+
+** APPPATH/media/css/style.less **
+
+		@divBkgColor: #DDD;
+
+		.roundedCorners (@radius:8px) {
+			-moz-border-radius:@radius;
+			-webkit-border-radius:@radius;
+			border-radius:@radius;
+			zoom:1;
+		}
+
+		div {
+			background: @divBkgColor;
+			.roundedCorners;
+
+			p { .roundedCorners(5px); }
 		}
 
 ** APPPATH/config/less.php **
 
 		return array(
-			'compress' => TRUE,
-
 			// relative PATH to a writable folder to store compiled / compressed css
 			// path below will be treated as: DOCROOT . 'media/css/'
 			'path'     => 'media/css/',
+			'compress' => TRUE,
 		);
 
 ** APPPATH/classes/controller/sample.php **
 
-		Controller_Home extends Controller_Template {
+		class Controller_Sample extends Controller_Template {
 
 			public $template = 'template';
 
-			// no need to add .less extension
-			public $stylesheets = array('reset', 'style');
-
 			public function action_index()
 			{
-				$stylesheets = $this->stylesheets;
+				// no need to add .less extension
+				// you can put your less files anywhere
+				$less_files = array
+				(
+					MODPATH.'baseModule/media/css/layout',
+					APPPATH.'media/css/style',
+				);
 
-				foreach (stylesheets as $key => $value)
-				{
-					// I keep my less files inside APPPATH . 'media/less/' but can be anywhere
-					$stylesheets[$key] = APPPATH . 'media/less/' . $value;
-				}
-
-				$this->template->stylesheets = Less::set($this->stylesheets);
+				$this->template->stylesheet = Less::compile($less_files);
 			}
 		}
 
@@ -67,7 +85,7 @@ Sample Code
 		<html>
 		<head>
 			<title>LESS for Kohana</title>
-			<?= $stylesheets ?>
+			<?= $stylesheet; // will give me ONE compressed css file located in /media/css/ ?>
 		</head>
 		<body>
 			<h1>LESS for Kohana or Kohana for LESS?</h1>
