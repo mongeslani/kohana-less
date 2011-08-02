@@ -2,16 +2,24 @@
 
 class Less_Core
 {
+	// Default less files extension
+	public static $ext = '.less';
+	
 	/**
 	 * Get the link tag of less paths
 	 *
-	 * @param   array     array of css paths
+	 * @param   mixed     array of css paths or single path
 	 * @param   string    value of media css type
 	 * @param   boolean   allow compression
 	 * @return  string    link tag pointing to the css paths
 	 */
-	public static function compile($array = array(), $media = 'screen')
+	public static function compile($array = NULL, $media = 'screen')
 	{
+		if (is_string($array))
+		{
+			$array = array($array);
+		}
+		
 		// return comment if array is empty
 		if (empty($array)) return self::_html_comment('no less files');
 
@@ -21,16 +29,17 @@ class Less_Core
 		// validate
 		foreach ($array as $file)
 		{
-			// remove extension if its present
-			$file = preg_replace('/\.less/', '', $file);
-
-			if (file_exists($file.'.less'))
+			if (file_exists($file))
 			{
 				array_push($stylesheets, $file);
 			}
+			elseif (file_exists($file.self::$ext))
+			{
+				array_push($stylesheets, $file.self::$ext);				
+			}
 			else
 			{
-				array_push($assets, self::_html_comment('could not find '.Kohana::debug_path($file).'.less'));
+				array_push($assets, self::_html_comment('could not find '.Debug::path($file).self::$ext));
 			}
 		}
 
@@ -38,7 +47,7 @@ class Less_Core
 		if ( ! count($stylesheets)) return self::_html_comment('all less files are invalid');
 
 		// get less config
-		$config = Kohana::config('less');
+		$config = Kohana::$config->load('less');
 
 		// if compression is allowed
 		if ($config['compress'])
@@ -96,12 +105,9 @@ class Less_Core
 		// if the file exists no need to generate
 		if ( ! file_exists($filename))
 		{
-			// create data holder
-			$data = '';
+			touch($filename, filemtime($file) - 3600);
 
-			touch($filename, filemtime($file.'.less') - 3600);
-
-			lessc::ccompile($file.'.less', $filename);
+			lessc::ccompile($file, $filename);
 		}
 
 		return $filename;
@@ -116,7 +122,7 @@ class Less_Core
 	protected static function _combine($files)
 	{
 		// get assets' css config
-		$config = Kohana::config('less');
+		$config = Kohana::$config->load('less');
 
 		// get the most recent modified time of any of the files
 		$last_modified = self::_get_last_modified($files);
@@ -153,7 +159,7 @@ class Less_Core
 
 		foreach($files as $file)
 		{
-			$data .= file_get_contents($file.'.less');
+			$data .= file_get_contents($file);
 		}
 
 		echo $data;
@@ -196,7 +202,7 @@ class Less_Core
 
 		foreach ($files as $file) 
 		{
-			$modified = filemtime($file.'.less');
+			$modified = filemtime($file);
 			if ($modified !== false and $modified > $last_modified) $last_modified = $modified;
 		}
 

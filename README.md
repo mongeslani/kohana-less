@@ -1,5 +1,5 @@
-KO3 LESS Module v.1.1
-=====================
+KO3 LESS Module v.1.1.1
+=======================
 
 LESS Module is a port of Leaf Corcoran's [LESSPHP](http://leafo.net/lessphp) for Kohana 3
 It adopts some of Alex Sancho's Kohana 2.3 Assets Module codes for CSS compression, credits goes to them
@@ -13,12 +13,11 @@ To Use
 3. Copy the less config file from /modules/less/config/less.php to your application's config directory
 4. From your less.php config file, put the 'path' to where you want the CSS files compiled / compressed, the folder must be writable
 5. You can set 'compress' to TRUE on your less.php config file if you want your CSS files to be combined in to one file and compressed (to lessen server calls)
-6. Checkout how to use through the included sample-code folder, that folder is not part of the module
 
 Sample Code
 ------------
 
-
+Default less files extension is set into `Less::$extension` and is `.less`.
 
 
 ** MODPATH/baseModule/media/css/layout.less **
@@ -60,27 +59,34 @@ Sample Code
 			'compress' => TRUE,
 		);
 
-** APPPATH/classes/controller/sample.php **
+** In your controller **
 
 		class Controller_Sample extends Controller_Template {
 
 			public $template = 'template';
 
-			public function action_index()
+			public function action_example1()
 			{
 				// no need to add .less extension
 				// you can put your less files anywhere
 				$less_files = array
 				(
-					MODPATH.'baseModule/media/css/layout',
+					MODPATH.'baseModule/media/css/layout.less',
 					APPPATH.'media/css/style',
 				);
 
 				$this->template->stylesheet = Less::compile($less_files);
 			}
+
+			public function action_example2()
+			{
+				// you can pass just single file
+				
+				$this->template->stylesheet = Less::compile(APPPATH.'media/css/style');
+			}
 		}
 
-** APPPATH/views/template.php **
+** In your template **
 
 		<html>
 		<head>
