@@ -13,7 +13,7 @@ class Less_Core
 	 * @param   boolean   allow compression
 	 * @return  string    link tag pointing to the css paths
 	 */
-	public static function compile($array = NULL, $media = 'screen')
+	public static function compile($array = '', $media = 'screen')
 	{
 		if (is_string($array))
 		{

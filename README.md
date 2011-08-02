@@ -17,7 +17,7 @@ To Use
 Sample Code
 ------------
 
-Default less files extension is set into `Less::$extension` and is `.less`.
+Default less files extension is set in `Less::$extension` and is `.less`.
 
 
 ** MODPATH/baseModule/media/css/layout.less **
