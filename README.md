@@ -100,4 +100,4 @@ Default less files extension is set in `Less::$extension` and is `.less`.
 
 Issues
 -------
-Please report it to the [issues tracker](http://github.com/mongeslani/kohana-less/issues).
+Please report it to the [issues tracker](http://github.com/mongeslani/kohana-less/issues)..
