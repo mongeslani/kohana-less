@@ -52,7 +52,7 @@ class Less_Core
 		// if compression is allowed
 		if ($config['compress'])
 		{
-			return html::style(self::_combine($stylesheets), array('media' => $media));
+			return HTML::style(self::_combine($stylesheets), array('media' => $media));
 		}
 
 		// if no compression
