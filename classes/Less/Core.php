@@ -4,7 +4,7 @@ class Less_Core
 {
 	// Default less files extension
 	public static $ext = '.less';
-	
+
 	/**
 	 * Get the link tag of less paths
 	 *
@@ -19,7 +19,7 @@ class Less_Core
 		{
 			$array = array($array);
 		}
-		
+
 		// return comment if array is empty
 		if (empty($array)) return self::_html_comment('no less files');
 
@@ -35,7 +35,7 @@ class Less_Core
 			}
 			elseif (file_exists($file.self::$ext))
 			{
-				array_push($stylesheets, $file.self::$ext);				
+				array_push($stylesheets, $file.self::$ext);
 			}
 			else
 			{
@@ -49,6 +49,11 @@ class Less_Core
 		// get less config
 		$config = Kohana::$config->load('less');
 
+        // Clear compiled folder?
+        if ($config['clear_first']) {
+            self::clear_folder($config['path']);
+        }
+
 		// if compression is allowed
 		if ($config['compress'])
 		{
@@ -58,7 +63,7 @@ class Less_Core
 		// if no compression
 		foreach ($stylesheets as $file)
 		{
-			$filename = self::_get_filename($file, $config['path']);
+			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
 			array_push($assets, html::style($filename, array('media' => $media)));
 		}
 
@@ -84,11 +89,13 @@ class Less_Core
 
 	/**
 	 * Check if the asset exists already, if not generate an asset
-	 *
-	 * @param   string   path of the css file
+     *
+     * @param string  $file        The filename to check.
+	 * @param string  $path        The path of the css file.
+     * @param boolean $clear_first If we should clear the provided folder first.
 	 * @return  string   path to the asset file
 	 */
-	protected static function _get_filename($file, $path)
+	protected static function _get_filename($file, $path, $clear_first)
 	{
 		// get the filename
 		$filename = preg_replace('/^.+\//', '', $file);
@@ -200,7 +207,7 @@ class Less_Core
 	{
 		$last_modified = 0;
 
-		foreach ($files as $file) 
+		foreach ($files as $file)
 		{
 			$modified = filemtime($file);
 			if ($modified !== false and $modified > $last_modified) $last_modified = $modified;
@@ -219,4 +226,20 @@ class Less_Core
 	{
 		return '<!-- '.$string.' -->';
 	}
+
+    /**
+     * Delete all files from a provided folder.
+     *
+     * @param string $path The path to clear.
+     *
+     * @return void
+     */
+    private static function clear_folder($path) {
+        $files = glob("$path*");
+        foreach ($files as $file){
+            if (is_file($file)) {
+                unlink($file);
+            }
+        }
+    }
 }
