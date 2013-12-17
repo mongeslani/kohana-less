@@ -167,6 +167,8 @@ class Less_Core
 		foreach($files as $file)
 		{
 			$data .= file_get_contents($file);
+			$less = new lessc($file);
+			$data .= $less->parse();
 		}
 
 		echo $data;
