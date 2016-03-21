@@ -15,6 +15,10 @@ class Less_Core
 	 */
 	public static function compile($array = '', $media = 'screen')
 	{
+		if (Kohana::$profiling) {
+			$benchmark = Profiler::start("Less", __FUNCTION__.implode(', ', $array));
+		}
+
 		if (is_string($array))
 		{
 			$array = array($array);
@@ -49,25 +53,35 @@ class Less_Core
 		// get less config
 		$config = Kohana::$config->load('less');
 
-        // Clear compiled folder?
-        if ($config['clear_first']) {
-            self::clear_folder($config['path']);
-        }
-
-		// if compression is allowed
-		if ($config['compress'])
-		{
-			return HTML::style(self::_combine($stylesheets), array('media' => $media));
+		// Clear compiled folder?
+		if ($config['clear_first']) {
+			self::clear_folder($config['path']);
 		}
 
-		// if no compression
+		$filenames = []; // used when config[compress]
 		foreach ($stylesheets as $file)
 		{
 			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
-			array_push($assets, HTML::style($filename, array('media' => $media)));
+			if (!$config['compress']) {
+				$assets[] = HTML::style($filename, array('media' => $media));
+				continue;
+			}
+			$filenames[] = $filename;
 		}
 
-		return implode("\n", $assets);
+		if ($config['compress'])
+		{
+			$compressed = self::_combine($filenames);
+			$assets[] =  HTML::style($compressed, array('media' => $media));
+		}
+
+		$assets = implode("\n", $assets);
+
+		if (isset($benchmark)) {
+			Profiler::stop($benchmark);
+		}
+
+		return $assets;
 	}
 
 	/**
@@ -114,7 +128,10 @@ class Less_Core
 		{
 			touch($filename, filemtime($file) - 3600);
 
-			lessc::ccompile($file, $filename);
+			$parser = new Less_Parser;
+			$parser->parseFile($file);
+			$css = $parser->getCss();
+			file_put_contents($filename, $css);
 		}
 
 		return $filename;
@@ -183,12 +200,13 @@ class Less_Core
 	 */
 	public static function _compile($filename)
 	{
-		$less = new lessc($filename);
+		$parser = new Less_Parser;
 
 		try
 		{
-			$compiled = $less->parse();
-			$compressed = self::_compress($compiled);
+			$compiled = $parser->parseFile($filename);
+			$css = $parser->getCss();
+			$compressed = self::_compress($css);
 			file_put_contents($filename, $compressed);
 		}
 		catch (LessException $ex)
