@@ -64,7 +64,7 @@ class Less_Core
 		foreach ($stylesheets as $file)
 		{
 			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
-			array_push($assets, html::style($filename, array('media' => $media)));
+			array_push($assets, HTML::style($filename, array('media' => $media)));
 		}
 
 		return implode("\n", $assets);
