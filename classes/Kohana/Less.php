@@ -1,7 +1,7 @@
 <?php defined('SYSPATH') or die('No direct script access.');
 
-class Less_Core
-{
+class Kohana_Less {
+
 	// Default less files extension
 	public static $ext = '.less';
 
