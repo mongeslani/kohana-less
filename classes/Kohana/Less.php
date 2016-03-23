@@ -56,22 +56,20 @@ class Kohana_Less {
 			self::clear_folder($config['path']);
 		}
 
-		$filenames = []; // used when config[combine]
-		foreach ($stylesheets as $file)
-		{
+		$filenames = []; // used when config[compress]
+		foreach ($stylesheets as $file) {
 			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
-			if (!$config['combine']) {
-				$assets[] = HTML::style($filename, ['media' => $media]);
-				continue;
-			}
 			$filenames[] = $filename;
 		}
 
-		if ($config['combine'])
-		{
+		if ($config['compress']) {
 			$compressed = self::_combine($filenames);
-			$assets[] =  HTML::style($compressed, ['media' => $media]);
+            $filenames = [$compressed];
 		}
+
+        foreach ($filenames as $filename) {
+            $assets[] =  HTML::style($filename, array('media' => $media));
+        }
 
 		$assets = implode("\n", $assets);
 
