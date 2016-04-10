@@ -14,7 +14,7 @@ class Kohana_Less {
 	public static function compile($files = '', $media = 'screen')
 	{
 		if (Kohana::$profiling) {
-			$benchmark = Profiler::start("Less", __FUNCTION__.implode(', ', $files));
+			$benchmark = Profiler::start("Less", __METHOD__);
 		}
 
 		if (is_string($files))
@@ -107,6 +107,9 @@ class Kohana_Less {
 	 */
 	protected static function _get_filename($file, $path, $clear_first)
 	{
+		if (Kohana::$profiling) {
+			$benchmark = Profiler::start("Less", __METHOD__);
+		}
 		// get the filename
 		$filename = preg_replace('/^.+\//', '', $file);
 
@@ -131,6 +134,9 @@ class Kohana_Less {
 			file_put_contents($filename, $css);
 		}
 
+		if (isset($benchmark)) {
+			Profiler::stop($benchmark);
+		}
 		return $filename;
 	}
 
@@ -142,6 +148,11 @@ class Kohana_Less {
 	 */
 	protected static function _combine($files)
 	{
+		if (Kohana::$profiling) {
+			$benchmark = Profiler::start("Less", __METHOD__);
+		}
+		// get assets' css config
+		$config = Kohana::$config->load('less');
 
 		// get the most recent modified time of any of the files
 		$last_modified = self::_get_last_modified($files);
@@ -159,6 +170,9 @@ class Kohana_Less {
 			self::_generate_assets($filename, $files);
 		}
 
+		if (isset($benchmark)) {
+			Profiler::stop($benchmark);
+		}
 		return $filename;
 	}
 
@@ -222,6 +236,9 @@ class Kohana_Less {
 	 */
 	protected static function _get_last_modified($files)
 	{
+		if (Kohana::$profiling) {
+			$benchmark = Profiler::start("Less", __METHOD__);
+		}
 		$last_modified = 0;
 
 		foreach ($files as $file)
@@ -230,6 +247,9 @@ class Kohana_Less {
 			if ($modified !== false and $modified > $last_modified) $last_modified = $modified;
 		}
 
+		if (isset($benchmark)) {
+			Profiler::stop($benchmark);
+		}
 		return $last_modified;
 	}
 
