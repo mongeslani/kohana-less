@@ -126,6 +126,7 @@ class Kohana_Less {
 		if (! file_exists($filename)) {
 			touch($filename, filemtime($file) - 3600);
 
+			// todo : do not filename,output css all in once without writing files
 			$config = Kohana::$config->load('less');
 			$parser = new Less_Parser($config['options']);
 			$parser->parseFile($file);
@@ -264,18 +265,49 @@ class Kohana_Less {
 	}
 
     /**
-     * Delete all files from a provided folder.
+     * Delete files before check compile (force recompile each time)
      *
      * @param string $path The path to clear.
      *
      * @return void
      */
-    private static function clear_folder($path) {
-        $files = glob("$path*less*.css");
-        foreach ($files as $file){
+    private function clear_files($required_files) {
+        $path = $this->config['path'];
+
+        $files = glob("${path}*.css");
+
+        if ($this->config['timestamp_in_filename']) {
+            //$regex_suffix = '(?:-\d{10})?';
+            $regex_suffix = '(?:-\d{10})';
+        } else {
+            $regex_suffix = '';
+        }
+
+        foreach ($files as $file) {
             if (is_file($file)) {
-                unlink($file);
+                if ($required_files) {
+                    foreach($required_files as $req_file) {
+                        $req_file = basename($req_file);
+                        if (preg_match('#'.preg_quote($path.$req_file).$regex_suffix.'\.css#', $file)) {
+                            unlink($file);
+                            break;
+                        }
+                    }
+                } else {
+                    unlink($file);
+                }
             }
         }
+    }
+
+    /**
+     * Delete all files from the config $path given
+     *
+     * @param string $path The path to clear.
+     *
+     * @return void
+     */
+    public function clear_folder() {
+        return $this->clear_files([]);
     }
 }
