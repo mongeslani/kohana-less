@@ -123,8 +123,7 @@ class Kohana_Less {
 		$filename = $path.$compiled;
 
 		// if the file exists no need to generate
-		if ( ! file_exists($filename))
-		{
+		if (! file_exists($filename)) {
 			touch($filename, filemtime($file) - 3600);
 
 			$config = Kohana::$config->load('less');
