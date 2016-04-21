@@ -10,28 +10,26 @@ class Kohana_Less {
 	 *
 	 * @param   mixed     array of css paths or single path
 	 * @param   string    value of media css type
-	 * @param   boolean   allow compression
-	 * @return  string    link tag pointing to the css paths
 	 */
-	public static function compile($array = '', $media = 'screen')
+	public static function compile($files = '', $media = 'screen')
 	{
 		if (Kohana::$profiling) {
-			$benchmark = Profiler::start("Less", __FUNCTION__.implode(', ', $array));
+			$benchmark = Profiler::start("Less", __FUNCTION__.implode(', ', $files));
 		}
 
-		if (is_string($array))
+		if (is_string($files))
 		{
-			$array = array($array);
+			$files = [$files];
 		}
 
 		// return comment if array is empty
-		if (empty($array)) return self::_html_comment('no less files');
+		if (empty($files)) return self::_html_comment('no less files');
 
-		$stylesheets = array();
-		$assets = array();
+		$stylesheets = [];
+		$assets = [];
 
 		// validate
-		foreach ($array as $file)
+		foreach ($files as $file)
 		{
 			if (file_exists($file))
 			{
@@ -63,7 +61,7 @@ class Kohana_Less {
 		{
 			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
 			if (!$config['combine']) {
-				$assets[] = HTML::style($filename, array('media' => $media));
+				$assets[] = HTML::style($filename, ['media' => $media]);
 				continue;
 			}
 			$filenames[] = $filename;
@@ -72,7 +70,7 @@ class Kohana_Less {
 		if ($config['combine'])
 		{
 			$compressed = self::_combine($filenames);
-			$assets[] =  HTML::style($compressed, array('media' => $media));
+			$assets[] =  HTML::style($compressed, ['media' => $media]);
 		}
 
 		$assets = implode("\n", $assets);
