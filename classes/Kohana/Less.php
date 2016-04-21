@@ -58,18 +58,18 @@ class Kohana_Less {
 			self::clear_folder($config['path']);
 		}
 
-		$filenames = []; // used when config[compress]
+		$filenames = []; // used when config[combine]
 		foreach ($stylesheets as $file)
 		{
 			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
-			if (!$config['compress']) {
+			if (!$config['combine']) {
 				$assets[] = HTML::style($filename, array('media' => $media));
 				continue;
 			}
 			$filenames[] = $filename;
 		}
 
-		if ($config['compress'])
+		if ($config['combine'])
 		{
 			$compressed = self::_combine($filenames);
 			$assets[] =  HTML::style($compressed, array('media' => $media));
@@ -128,7 +128,8 @@ class Kohana_Less {
 		{
 			touch($filename, filemtime($file) - 3600);
 
-			$parser = new Less_Parser;
+			$config = Kohana::$config->load('less');
+			$parser = new Less_Parser($config['options']);
 			$parser->parseFile($file);
 			$css = $parser->getCss();
 			file_put_contents($filename, $css);
@@ -145,8 +146,6 @@ class Kohana_Less {
 	 */
 	protected static function _combine($files)
 	{
-		// get assets' css config
-		$config = Kohana::$config->load('less');
 
 		// get the most recent modified time of any of the files
 		$last_modified = self::_get_last_modified($files);
@@ -155,6 +154,7 @@ class Kohana_Less {
 		$compiled = md5(implode('|', $files)).'-'.$last_modified.'.css';
 
 		// compose the path to the asset file
+		$config = Kohana::$config->load('less');
 		$filename = $config['path'].$compiled;
 
 		// if the file exists no need to generate
@@ -200,13 +200,16 @@ class Kohana_Less {
 	 */
 	public static function _compile($filename)
 	{
-		$parser = new Less_Parser;
+		$config = Kohana::$config->load('less');
+		$parser = new Less_Parser($config['options']);
 
 		try
 		{
 			$compiled = $parser->parseFile($filename);
 			$css = $parser->getCss();
-			$compressed = self::_compress($css);
+			if ($config['compress']) {
+				$compressed = self::_compress($css);
+			}
 			file_put_contents($filename, $compressed);
 		}
 		catch (LessException $ex)
