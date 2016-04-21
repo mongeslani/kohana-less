@@ -254,7 +254,7 @@ class Kohana_Less {
      * @return void
      */
     private static function clear_folder($path) {
-        $files = glob("$path*");
+        $files = glob("$path*less*.css");
         foreach ($files as $file){
             if (is_file($file)) {
                 unlink($file);
