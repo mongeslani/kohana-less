@@ -135,13 +135,22 @@ class Kohana_Less {
 		$filename = basename($file);
     $filename = str_replace(self::$ext, '', $filename);
 		// compose the expected filename to store in /media/css
-		$compiled = $filename.'-'.$last_modified.'.css';
+    if ($this->config['timestamp_in_filename']) {
+      $compiled = $filename.'-'.$last_modified.'.css';
+    }
+    else {
+      $compiled = $filename.'.css';
+    }
 
 		// compose the expected file path
 		$filename = $path.$compiled;
 
+    $css_modified = null;
+		if (file_exists($filename)) {
+			$css_modified = filemtime($filename);
+    }
 		// if the file exists no need to generate
-		if (! file_exists($filename)) {
+		if (! file_exists($filename) || $last_modified > $css_modified) {
 			touch($filename, filemtime($file) - 3600);
 
 			// todo : do not filename,output css all in once without writing files

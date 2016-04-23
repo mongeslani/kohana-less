@@ -1,10 +1,12 @@
 <?php defined('SYSPATH') OR die('No direct access allowed.');
 
 return [
-	'path'        => 'css/', // destination path (relative to DOCUMENT_ROOT) to store compiled / compressed css
-	'clear_first' => false,  // Clear the provided folder before writing new file
-	'combine'     => false,  // combine multiple files into one
-	'compress'    => false,  // compress even more (after less.php output)
+	'path'                  => 'css/', // destination path (relative to DOCUMENT_ROOT) to store compiled / compressed css
+	'clear_first'           => false,  // Clear the provided folder before writing new file
+	'combine'               => false,  // combine multiple files into one
+	'combine_filename'      => false,  // output filename custom when combine=true (instead of md5)
+	'compress'              => false,  // compress even more (after less.php output)
+	'timestamp_in_filename' => true,   // if true, output filename will contains timestamp and it will be used to check modified time instead of mtime
 
 	'options' => [
 		'compress'           => false, // option - whether to compress
