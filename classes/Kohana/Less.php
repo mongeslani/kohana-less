@@ -12,12 +12,11 @@ class Kohana_Less {
         $default_options = Kohana::$config->load('less');
         $this->config = $default_options;
     }
-    /**
-     * @deprecated
-     */
-    public static function compile($files = '', $media = 'screen') {
-        $less = new Less;
-        return $less->old_compile($files, $media);
+
+    public static function compile($files = '', $media = 'screen')
+    {
+      $less = new Less;
+      return $less->c($files, $media);
     }
     /**
      * Get the link tag of less paths
@@ -25,7 +24,7 @@ class Kohana_Less {
      * @param   mixed     array of css paths or single path
      * @param   string    value of media css type
      */
-    public function old_compile($files = '', $media = 'screen')
+    public function c($files = '', $media = 'screen')
     {
         if (Kohana::$profiling) {
             $benchmark = Profiler::start("Less", __METHOD__);
