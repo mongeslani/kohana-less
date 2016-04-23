@@ -2,16 +2,30 @@
 
 class Kohana_Less {
 
+	public $config = [];
 	// Default less files extension
 	public static $ext = '.less';
 
+
+  public function __construct($config = null) {
+
+    $default_options = Kohana::$config->load('less');
+    $this->config = $default_options;
+  }
+	/**
+   * @deprecated
+	 */
+  public static function compile($files = '', $media = 'screen') {
+    $less = new Less;
+    return $less->old_compile($files, $media);
+  }
 	/**
 	 * Get the link tag of less paths
 	 *
 	 * @param   mixed     array of css paths or single path
 	 * @param   string    value of media css type
 	 */
-	public static function compile($files = '', $media = 'screen')
+	public function old_compile($files = '', $media = 'screen')
 	{
 		if (Kohana::$profiling) {
 			$benchmark = Profiler::start("Less", __METHOD__);
@@ -23,7 +37,9 @@ class Kohana_Less {
 		}
 
 		// return comment if array is empty
-		if (empty($files)) return self::_html_comment('no less files');
+    if (empty($files)) {
+      return $this->_html_comment('no less files');
+    }
 
 		$stylesheets = [];
 		$assets = [];
@@ -41,29 +57,30 @@ class Kohana_Less {
 			}
 			else
 			{
-				array_push($assets, self::_html_comment('could not find '.Debug::path($file).self::$ext));
+				array_push($assets, $this->_html_comment('could not find '.Debug::path($file).self::$ext));
 			}
 		}
 
 		// all stylesheets are invalid
-		if ( ! count($stylesheets)) return self::_html_comment('all less files are invalid');
+    if (!count($stylesheets)) {
+      return $this->_html_comment('all less files are invalid');
+    }
 
 		// get less config
-		$config = Kohana::$config->load('less');
 
 		// Clear compiled folder?
-		if ($config['clear_first']) {
-			self::clear_folder($config['path']);
+		if ($this->config['clear_first']) {
+			$this->clear_folder($this->config['path']);
 		}
 
 		$filenames = []; // used when config[compress]
 		foreach ($stylesheets as $file) {
-			$filename = self::_get_filename($file, $config['path'], $config['clear_first']);
+			$filename = $this->_get_filename($file, $this->config['path'], $this->config['clear_first']);
 			$filenames[] = $filename;
 		}
 
-		if ($config['compress']) {
-			$compressed = self::_combine($filenames);
+		if ($this->config['compress']) {
+			$compressed = $this->_combine($filenames);
             $filenames = [$compressed];
 		}
 
@@ -86,7 +103,7 @@ class Kohana_Less {
 	 * @param   string   css string to compress
 	 * @return  string   compressed css string
 	 */
-	private static function _compress($data)
+	private function _compress($data)
 	{
 		$data = preg_replace('~/\*[^*]*\*+([^/][^*]*\*+)*/~', '', $data);
 		$data = preg_replace('~\s+~', ' ', $data);
@@ -105,17 +122,18 @@ class Kohana_Less {
      * @param boolean $clear_first If we should clear the provided folder first.
 	 * @return  string   path to the asset file
 	 */
-	protected static function _get_filename($file, $path, $clear_first)
+	protected function _get_filename($file, $path, $clear_first)
 	{
 		if (Kohana::$profiling) {
 			$benchmark = Profiler::start("Less", __METHOD__);
 		}
-		// get the filename
-		$filename = preg_replace('/^.+\//', '', $file);
 
 		// get the last modified date
-		$last_modified = self::_get_last_modified(array($file));
+		$last_modified = $this->_get_last_modified(array($file));
 
+		// get the filename
+		$filename = basename($file);
+    $filename = str_replace(self::$ext, '', $filename);
 		// compose the expected filename to store in /media/css
 		$compiled = $filename.'-'.$last_modified.'.css';
 
@@ -127,8 +145,7 @@ class Kohana_Less {
 			touch($filename, filemtime($file) - 3600);
 
 			// todo : do not filename,output css all in once without writing files
-			$config = Kohana::$config->load('less');
-			$parser = new Less_Parser($config['options']);
+			$parser = new Less_Parser($this->config['options']);
 			$parser->parseFile($file);
 			$css = $parser->getCss();
 			file_put_contents($filename, $css);
@@ -146,28 +163,26 @@ class Kohana_Less {
 	 * @param   array    array of asset files
 	 * @return  string   path to the asset file
 	 */
-	protected static function _combine($files)
+	protected function _combine($files)
 	{
 		if (Kohana::$profiling) {
 			$benchmark = Profiler::start("Less", __METHOD__);
 		}
 		// get assets' css config
-		$config = Kohana::$config->load('less');
 
 		// get the most recent modified time of any of the files
-		$last_modified = self::_get_last_modified($files);
+		$last_modified = $this->_get_last_modified($files);
 
 		// compose the asset filename
 		$compiled = md5(implode('|', $files)).'-'.$last_modified.'.css';
 
 		// compose the path to the asset file
-		$config = Kohana::$config->load('less');
-		$filename = $config['path'].$compiled;
+		$filename = $this->config['path'].$compiled;
 
 		// if the file exists no need to generate
 		if ( ! file_exists($filename))
 		{
-			self::_generate_assets($filename, $files);
+			$this->_generate_assets($filename, $files);
 		}
 
 		if (isset($benchmark)) {
@@ -182,7 +197,7 @@ class Kohana_Less {
 	 * @param   string   filename of the asset file
 	 * @param   array    array of source files
 	 */
-	protected static function _generate_assets($filename, $files)
+	protected function _generate_assets($filename, $files)
 	{
 		// create data holder
 		$data = '';
@@ -200,7 +215,7 @@ class Kohana_Less {
 
 		file_put_contents($filename, ob_get_clean(), LOCK_EX);
 
-		self::_compile($filename);
+		$this->_compile($filename);
 	}
 
 	/**
@@ -208,7 +223,7 @@ class Kohana_Less {
 	 *
 	 * @param   string   path to the file to compile
 	 */
-	public static function _compile($filename)
+	public function _compile($filename)
 	{
 		$config = Kohana::$config->load('less');
 		$parser = new Less_Parser($config['options']);
@@ -217,8 +232,8 @@ class Kohana_Less {
 		{
 			$compiled = $parser->parseFile($filename);
 			$css = $parser->getCss();
-			if ($config['compress']) {
-				$compressed = self::_compress($css);
+			if ($this->config['compress']) {
+				$compressed = $this->_compress($css);
 			}
 			file_put_contents($filename, $compressed);
 		}
@@ -234,7 +249,7 @@ class Kohana_Less {
 	 * @param   array    array of asset files
 	 * @return  string   path to the asset file
 	 */
-	protected static function _get_last_modified($files)
+	protected function _get_last_modified($files)
 	{
 		if (Kohana::$profiling) {
 			$benchmark = Profiler::start("Less", __METHOD__);
@@ -259,7 +274,7 @@ class Kohana_Less {
 	 * @param   string   string to format
 	 * @return  string   HTML comment
 	 */
-	protected static function _html_comment($string = '')
+	protected function _html_comment($string = '')
 	{
 		return '<!-- '.$string.' -->';
 	}
