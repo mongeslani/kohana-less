@@ -125,19 +125,9 @@ class Kohana_Less {
         // get the last modified date
         $last_modified = $this->_get_last_modified(array($file));
 
-        // get the filename
-        $filename = basename($file);
-        $filename = str_replace(self::$ext, '', $filename);
-        // compose the expected filename to store in /media/css
-        if ($this->config['timestamp_in_filename']) {
-            $compiled = $filename.'-'.$last_modified.'.css';
-        }
-        else {
-            $compiled = $filename.'.css';
-        }
+        $filename = $this->get_compiled_filename($file, $last_modified);
 
         // compose the expected file path
-        $filename = $path.$compiled;
 
         $css_modified = null;
         if (file_exists($filename)) {
@@ -176,11 +166,8 @@ class Kohana_Less {
         // get the most recent modified time of any of the files
         $last_modified = $this->_get_last_modified($files);
 
-        // compose the asset filename
-        $compiled = md5(implode('|', $files)).'-'.$last_modified.'.css';
+        $filename = $this->get_compiled_filename($files, $last_modified);
 
-        // compose the path to the asset file
-        $filename = $this->config['path'].$compiled;
 
         // if the file exists no need to generate
         if ( ! file_exists($filename)) {
@@ -322,5 +309,40 @@ class Kohana_Less {
      */
     public function clear_folder() {
         return $this->clear_files([]);
+    }
+
+    public function get_compiled_filename($files, $last_modified)
+    {
+        static $count = 0;
+        if (is_array($files)) {
+            $filename = '';
+            // compose the asset filename
+            if ($this->config['combine_filename']) {
+                $filename = $this->config['combine_filename'];
+                if ($count > 0) {
+                    $filename .= $count;
+                }
+                $count++;
+            } else {
+                $filename .= md5(implode('|', $files));
+            }
+        } else {
+
+            // get the filename
+            $filename = basename($files);
+            $filename = str_replace(self::$ext, '', $filename);
+
+            // compose the expected filename to store in /media/css
+        }
+
+        if ($this->config['timestamp_in_filename']) {
+            $filename .= '-'.$last_modified;
+        }
+
+        $filename .= '.css';
+
+        // compose the path to the asset file
+        $filename = $this->config['path'].$filename;
+        return $filename;
     }
 }
