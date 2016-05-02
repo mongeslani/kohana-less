@@ -73,9 +73,9 @@ class Kohana_Less {
             $filenames[] = $filename;
         }
 
-        if ($this->config['compress']) {
-            $compressed = $this->_combine($filenames);
-            $filenames = [$compressed];
+        if ($this->config['combine']) {
+            $combined = $this->_combine($filenames);
+            $filenames = [$combined];
         }
 
         foreach ($filenames as $filename) {
