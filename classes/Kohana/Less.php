@@ -151,23 +151,25 @@ class Kohana_Less {
      * Combine the files
      *
      * @param   array    array of asset files
-     * @return  string   path to the asset file
      */
     protected function get_combined_filename($files)
     {
         if (Kohana::$profiling) {
             $benchmark = Profiler::start("Less", __METHOD__);
         }
-        // get assets' css config
 
         // get the most recent modified time of any of the files
         $last_modified = $this->_get_last_modified($files);
 
         $filename = $this->build_filename($files, $last_modified);
 
+        $css_modified = null;
+        if (file_exists($filename)) {
+            $css_modified = filemtime($filename);
+        }
 
         // if the file exists no need to generate
-        if ( ! file_exists($filename)) {
+        if (! file_exists($filename) || $last_modified > $css_modified) {
             if ($this->config['clear_old_files']) {
                 $this->clear_files([$filename]);
             }
