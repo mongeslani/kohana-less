@@ -263,11 +263,10 @@ class Kohana_Less {
         return '<!-- '.$string.' -->';
     }
 
-    /**
-     * Delete files before check compile (force recompile each time)
+    /** Delete all files from the config $path matching the array of files
+     * given
      *
-     * @param string $path The path to clear.
-     *
+     * @param array array of files (relative to config[path])
      * @return void
      */
     private function clear_files($required_files) {
@@ -302,14 +301,16 @@ class Kohana_Less {
     }
 
     /**
-     * Delete all files from the config $path given
-     *
-     * @param string $path The path to clear.
+     * Delete files before check compile (force recompile each time)
      *
      * @return void
      */
     public function clear_folder() {
-        return $this->clear_files([]);
+        static $folder_cleared;
+        if (!$folder_cleared) {
+            $folder_cleared = true;
+            return $this->clear_files([]);
+        }
     }
 
     public function get_compiled_filename($files, $last_modified)
