@@ -1,3 +1,18 @@
+2.1
+---
+New:
+* config `combine_cache_path` (default:same as `path`)
+	if set and combine=true, this path will be used to write separate compiled
+	files.
+* config `clear_old_files` (default:true)
+	if true, remove all files matching filename(s) to compile
+
+Changes:
+* improve code, memory usage
+* rename old methods
+* psr
+* fix clear_files with and without timestamp
+
 2.0
 ---
 New:
@@ -41,8 +56,6 @@ New:
 Changes:
 * more psr-2 code.
 * the configuration `combine` will not longer compress css.
-
-Fix:
 
 v.1.2
 ---
