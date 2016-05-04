@@ -188,39 +188,19 @@ class Kohana_Less {
      */
     protected function combine($filename, $files)
     {
-        touch($filename);
-
         $h = fopen($filename, 'w');
         if (flock($h, LOCK_EX)) {
             foreach($files as $file) {
-                fwrite($h, file_get_contents($file));
+                if ($this->config['compress']) {
+                    fwrite($h, $this->_compress(file_get_contents($file)));
+                } else {
+                    fwrite($h, file_get_contents($file));
+                }
             }
             flock($h, LOCK_UN);
         }
         fclose($h);
-        $this->_compile($filename);
-    }
 
-    /**
-     * Compiles the file from less to css format
-     *
-     * @param   string   path to the file to compile
-     */
-    public function _compile($filename)
-    {
-        $parser = new Less_Parser($this->config['options']);
-
-        try {
-            $css = $parser->parseFile($filename);
-            $css = $parser->getCss();
-            if ($this->config['compress']) {
-                $css = $this->_compress($css);
-            }
-            file_put_contents($filename, $css, LOCK_EX);
-        }
-        catch (LessException $ex) {
-            exit($ex->getMessage());
-        }
     }
 
     /**
