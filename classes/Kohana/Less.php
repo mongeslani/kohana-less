@@ -176,7 +176,7 @@ class Kohana_Less {
             if ($this->config['clear_old_files']) {
                 $this->clear_files([$filename]);
             }
-            $this->_generate_assets($filename, $files);
+            $this->combine($filename, $files);
         }
 
         if (isset($benchmark)) {
@@ -191,7 +191,7 @@ class Kohana_Less {
      * @param   string   filename of the asset file
      * @param   array    array of source files
      */
-    protected function _generate_assets($filename, $files)
+    protected function combine($filename, $files)
     {
         // create data holder
         $data = '';
