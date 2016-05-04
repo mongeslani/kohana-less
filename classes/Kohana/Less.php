@@ -63,7 +63,7 @@ class Kohana_Less {
 
         // Clear compiled folder?
         if ($this->config['clear_first']) {
-            $this->clear_folder($this->config['path']);
+            $this->clear_folder();
         }
 
         $filenames = []; // used when config[compress]
@@ -73,8 +73,7 @@ class Kohana_Less {
         }
 
         if ($this->config['combine']) {
-            $combined = $this->get_combined_filename($filenames);
-            $filenames = [$combined];
+            $filenames[] = $this->get_combined_filename($filenames);
         }
 
         foreach ($filenames as $filename) {
@@ -134,7 +133,6 @@ class Kohana_Less {
         }
         // if the file exists no need to generate
         if (! file_exists($filename) || $last_modified > $css_modified) {
-            touch($filename, filemtime($file) - 3600);
             if ($this->config['clear_old_files']) {
                 $this->clear_files([$filename]);
             }
@@ -348,3 +346,4 @@ class Kohana_Less {
         return $filename;
     }
 }
+
