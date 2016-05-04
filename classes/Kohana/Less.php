@@ -68,8 +68,7 @@ class Kohana_Less {
 
         $filenames = []; // used when config[compress]
         foreach ($stylesheets as $file) {
-            $filename = $this->_get_filename($file, $this->config['path'], $this->config['clear_first']);
-            $filenames[] = $filename;
+            $filenames[] = $this->get_filename($file);
         }
 
         if ($this->config['combine']) {
@@ -114,7 +113,7 @@ class Kohana_Less {
      * @param boolean $clear_first If we should clear the provided folder first.
      * @return  string   path to the asset file
      */
-    protected function _get_filename($file, $path, $clear_first)
+    protected function get_filename($file)
     {
         if (Kohana::$profiling) {
             $benchmark = Profiler::start("Less", __METHOD__);
