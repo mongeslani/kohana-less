@@ -122,9 +122,7 @@ class Kohana_Less {
         // get the last modified date
         $last_modified = $this->_get_last_modified(array($file));
 
-        $filename = $this->get_compiled_filename($file, $last_modified);
-
-        // compose the expected file path
+        $filename = $this->build_filename($file, $last_modified);
 
         $css_modified = null;
         if (file_exists($filename)) {
@@ -165,7 +163,7 @@ class Kohana_Less {
         // get the most recent modified time of any of the files
         $last_modified = $this->_get_last_modified($files);
 
-        $filename = $this->get_compiled_filename($files, $last_modified);
+        $filename = $this->build_filename($files, $last_modified);
 
 
         // if the file exists no need to generate
@@ -310,7 +308,12 @@ class Kohana_Less {
         }
     }
 
-    public function get_compiled_filename($files, $last_modified)
+    /* build the filename based on config and input files
+     * @param   array    array of asset files
+     * @param   string   timestamp of the most recent modified files
+     *
+     */
+    public function build_filename($files, $last_modified)
     {
         static $count = 0;
         if (is_array($files)) {
