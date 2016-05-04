@@ -220,7 +220,9 @@ class Kohana_Less {
 
         foreach ($files as $file) {
             $modified = filemtime($file);
-            if ($modified !== false and $modified > $last_modified) $last_modified = $modified;
+            if ($modified !== false and $modified > $last_modified) {
+              $last_modified = $modified;
+            }
         }
 
         if (isset($benchmark)) {
