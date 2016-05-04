@@ -253,12 +253,8 @@ class Kohana_Less {
 
         $files = glob("${path}*.css");
 
-        if ($this->config['timestamp_in_filename']) {
-            //$regex_suffix = '(?:-\d{10})?';
-            $regex_suffix = '(?:-\d{10})';
-        } else {
-            $regex_suffix = '';
-        }
+        // search with optional timestamp in filename
+        $regex_suffix = '(?:-\d{10})?';
 
         foreach ($files as $file) {
             if (is_file($file)) {
@@ -266,7 +262,7 @@ class Kohana_Less {
                     foreach($required_files as $req_file) {
                         // remove timestamp from the filename
                         $req_file = basename($req_file);
-                        $req_file = preg_replace('#-\d{10}\.css#', '', $req_file);
+                        $req_file = preg_replace('#(-\d{10})?\.css#', '', $req_file);
                         if (preg_match('#'.preg_quote($path.$req_file).$regex_suffix.'\.css#', $file)) {
                             unlink($file);
                             break;
