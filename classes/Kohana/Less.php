@@ -73,7 +73,7 @@ class Kohana_Less {
         }
 
         if ($this->config['combine']) {
-            $combined = $this->_combine($filenames);
+            $combined = $this->get_combined_filename($filenames);
             $filenames = [$combined];
         }
 
@@ -158,7 +158,7 @@ class Kohana_Less {
      * @param   array    array of asset files
      * @return  string   path to the asset file
      */
-    protected function _combine($files)
+    protected function get_combined_filename($files)
     {
         if (Kohana::$profiling) {
             $benchmark = Profiler::start("Less", __METHOD__);
