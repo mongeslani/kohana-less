@@ -135,6 +135,9 @@ class Kohana_Less {
         // if the file exists no need to generate
         if (! file_exists($filename) || $last_modified > $css_modified) {
             touch($filename, filemtime($file) - 3600);
+            if ($this->config['clear_old_files']) {
+                $this->clear_files([$filename]);
+            }
 
             // todo : do not filename,output css all in once without writing files
             $parser = new Less_Parser($this->config['options']);
@@ -170,6 +173,9 @@ class Kohana_Less {
 
         // if the file exists no need to generate
         if ( ! file_exists($filename)) {
+            if ($this->config['clear_old_files']) {
+                $this->clear_files([$filename]);
+            }
             $this->_generate_assets($filename, $files);
         }
 
@@ -286,7 +292,9 @@ class Kohana_Less {
             if (is_file($file)) {
                 if ($required_files) {
                     foreach($required_files as $req_file) {
+                        // remove timestamp from the filename
                         $req_file = basename($req_file);
+                        $req_file = preg_replace('#-\d{10}\.css#', '', $req_file);
                         if (preg_match('#'.preg_quote($path.$req_file).$regex_suffix.'\.css#', $file)) {
                             unlink($file);
                             break;

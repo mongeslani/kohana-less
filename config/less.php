@@ -6,7 +6,9 @@ return [
 	'combine'               => false,  // combine multiple files into one
 	'combine_filename'      => false,  // output filename custom when combine=true (instead of md5)
 	'compress'              => false,  // compress even more (after less.php output)
+
 	'timestamp_in_filename' => true,   // if true, output filename will contains timestamp and it will be used to check modified time instead of mtime
+	'clear_old_files'       => true,   // if timestamp_in_filename is true, this will remove the previously generated files containing timestamp. set to false for better performance
 
 	'options' => [
 		'compress'           => false, // option - whether to compress
