@@ -193,21 +193,16 @@ class Kohana_Less {
      */
     protected function combine($filename, $files)
     {
-        // create data holder
-        $data = '';
-
         touch($filename);
 
-        ob_start();
-
-        foreach($files as $file) {
-            $data .= file_get_contents($file);
+        $h = fopen($filename, 'w');
+        if (flock($h, LOCK_EX)) {
+            foreach($files as $file) {
+                fwrite($h, file_get_contents($file));
+            }
+            flock($h, LOCK_UN);
         }
-
-        echo $data;
-
-        file_put_contents($filename, ob_get_clean(), LOCK_EX);
-
+        fclose($h);
         $this->_compile($filename);
     }
 
@@ -218,16 +213,15 @@ class Kohana_Less {
      */
     public function _compile($filename)
     {
-        $config = Kohana::$config->load('less');
-        $parser = new Less_Parser($config['options']);
+        $parser = new Less_Parser($this->config['options']);
 
         try {
-            $compiled = $parser->parseFile($filename);
+            $css = $parser->parseFile($filename);
             $css = $parser->getCss();
             if ($this->config['compress']) {
-                $compressed = $this->_compress($css);
+                $css = $this->_compress($css);
             }
-            file_put_contents($filename, $compressed);
+            file_put_contents($filename, $css, LOCK_EX);
         }
         catch (LessException $ex) {
             exit($ex->getMessage());
