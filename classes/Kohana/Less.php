@@ -6,7 +6,6 @@ class Kohana_Less {
     // Default less files extension
     public static $ext = '.less';
 
-
     public function __construct($config = null) {
 
         $default_options = Kohana::$config->load('less');
