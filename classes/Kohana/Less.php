@@ -298,23 +298,24 @@ class Kohana_Less {
         static $count = 0;
         if (is_array($files)) {
             $filename = '';
-            // compose the asset filename
+
             if ($this->config['combine_filename']) {
                 $filename = $this->config['combine_filename'];
                 if ($count > 0) {
                     $filename .= $count;
                 }
                 $count++;
-            } else {
-                $filename .= md5(implode('|', $files));
+
+                $filename .= '-'.md5(implode('|', $files));
             }
         } else {
+            if ($this->config['combine'] && $this->config['combine_cache_path']) {
+                $path = $this->config['combine_cache_path'];
+            }
 
             // get the filename
             $filename = basename($files);
             $filename = str_replace(self::$ext, '', $filename);
-
-            // compose the expected filename to store in /media/css
         }
 
         if ($this->config['timestamp_in_filename']) {
@@ -323,8 +324,12 @@ class Kohana_Less {
 
         $filename .= '.css';
 
-        // compose the path to the asset file
-        $filename = $this->config['path'].$filename;
+        if (!isset($path)) {
+            $path = $this->config['path'];
+        }
+
+        $filename = $path.$filename;
+
         return $filename;
     }
 }
